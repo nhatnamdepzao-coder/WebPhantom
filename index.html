@@ -1,0 +1,255 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>PHANTOM</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#090909;color:#eee;font-family:Arial,sans-serif}
+button{cursor:pointer;font-family:inherit}
+.hidden{display:none!important}
+
+/* PHANTOM STYLE */
+#login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:22px}
+.login-card{width:100%;max-width:420px;text-align:center}
+.sun{font-size:125px;color:white;line-height:1.4;filter:grayscale(1) brightness(3);text-shadow:0 0 25px #fff5}
+.brand{font-size:45px;font-weight:1000;letter-spacing:8px;text-shadow:4px 5px #292929}
+.desc{font-size:10px;letter-spacing:3px;color:#777;margin:13px 0 30px}
+.keybox{display:flex;height:65px;background:#111;border:2px solid #303030;padding:7px}
+.keybox input{flex:1;min-width:0;background:none;border:0;outline:0;color:white;font-size:14px;letter-spacing:1px}
+.keybox input::placeholder{color:#555}
+.paste{background:#242424;color:white;border:0;padding:0 13px;font-weight:bold}
+.bigbtn{width:100%;height:65px;background:#eee;color:#080808;border:0;font-size:19px;font-weight:1000;letter-spacing:4px;margin-top:17px;clip-path:polygon(13px 0,100% 0,100% calc(100% - 13px),calc(100% - 13px) 100%,0 100%,0 13px)}
+.progress-area{display:none;margin-top:20px}
+.progress-info{display:flex;justify-content:space-between;color:#aaa;font-size:10px;letter-spacing:2px;margin-bottom:8px}
+.track{height:7px;background:#303030}
+.fill{height:100%;width:0;background:#eee}
+.message{font-size:11px;color:#aaa;margin-top:13px;min-height:14px}
+.time{font-size:32px;font-weight:1000;letter-spacing:4px;margin-top:18px}
+
+/* MENU */
+#menu{position:fixed;inset:0;display:flex;flex-direction:column;padding:10px;gap:8px;overflow:hidden}
+.topbar{height:37px;flex-shrink:0;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333}
+.topbar strong{font-size:21px;letter-spacing:4px}
+.online{font-size:9px;color:#9cdda9}
+.menu-title{flex-shrink:0;background:#eee;color:#111;padding:9px;text-align:center;font-weight:1000;letter-spacing:4px}
+.menu-content{flex:1;min-height:0;display:flex;flex-direction:column;gap:7px;overflow:hidden}
+.category{background:#111;border:1px solid #303030;padding:8px;border-radius:4px}
+.cat-title{font-size:11px;font-weight:bold;letter-spacing:3px;border-bottom:1px solid #292929;padding-bottom:6px;margin-bottom:6px}
+.options{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.options.two{grid-template-columns:repeat(2,1fr)}
+.option{min-width:0;min-height:33px;border:1px solid #333;background:#191919;color:#bbb;font-size:9px;font-weight:bold;padding:5px 2px}
+.option.active{background:#eee;color:#111;border-color:#eee}
+.tag{font-size:8px;color:#888;font-weight:normal}
+.character-panel{padding-top:8px}
+.character-row{display:flex;justify-content:space-between;font-size:10px;color:#aaa;margin-bottom:6px}
+.character-name{color:white;font-weight:bold}
+input[type=range]{width:100%;accent-color:white}
+.range-numbers{display:flex;justify-content:space-between;font-size:8px;color:#777;margin-top:5px}
+.inject-area{flex-shrink:0}
+.inject{width:100%;height:48px;background:#eee;color:#080808;border:0;font-size:16px;font-weight:1000;letter-spacing:5px}
+.inject:disabled{opacity:.6}
+.inject-progress{display:none;margin-top:7px}
+.inject-info{display:flex;justify-content:space-between;color:#aaa;font-size:10px;margin-bottom:5px}
+.inject-track{height:6px;background:#292929}
+.inject-fill{height:100%;width:0;background:#eee}
+.success{text-align:center;color:#9cdda9;font-size:10px;margin-top:5px}
+
+@media(max-height:650px){
+ #menu{padding:6px;gap:5px}
+ .category{padding:5px}
+ .cat-title{padding-bottom:4px;margin-bottom:4px}
+ .option{min-height:27px;font-size:8px}
+ .inject{height:41px}
+ .sun{font-size:90px}
+ .brand{font-size:36px}
+ .desc{margin-bottom:20px}
+}
+</style>
+</head>
+<body>
+
+<div id="login">
+ <div class="login-card">
+  <div class="sun">☀️</div>
+  <div class="brand">PHANTOM</div>
+  <div class="desc">ph4nt0m on top sever VN/Brazil</div>
+  <div class="keybox">
+   <input id="key" placeholder="PHTM-XXXX-XXXX-XXXX" autocomplete="off">
+   <button class="paste" onclick="pasteKey()">PhanTom</button>
+  </div>
+  <button class="bigbtn" id="verifyBtn" onclick="verifyKey()">VERIFY</button>
+  <div class="progress-area" id="verifyArea">
+   <div class="progress-info"><span id="verifyText">VERIFYING...</span><span id="verifyPercent">0%</span></div>
+   <div class="track"><div class="fill" id="verifyFill"></div></div>
+  </div>
+  <div class="message" id="message"></div>
+  <div id="timeArea" class="hidden">
+   <div class="time">17¹⁶⁷ Day</div>
+   <button class="bigbtn" onclick="openMenu()">MENU</button>
+  </div>
+ </div>
+</div>
+
+<div id="menu" class="hidden">
+ <div class="topbar"><strong>PHANTOM</strong><span class="online">● ONLINE</span></div>
+ <div class="menu-title">CONTROL PANEL</div>
+
+ <div class="menu-content">
+  <div class="category">
+   <div class="cat-title">01 &nbsp; NULL BYPASS</div>
+   <div class="options">
+    <button class="option multi">BYPASS (1)</button>
+    <button class="option multi">BYPASS (2)</button>
+    <button class="option multi">BYPASS (BYTESS)</button>
+   </div>
+  </div>
+
+  <div class="category">
+   <div class="cat-title">02 &nbsp; AIM</div>
+   <div class="options two">
+    <button class="option single">SLIENT <span class="tag">RISK</span></button>
+    <button class="option single">POV <span class="tag">SAFE</span></button>
+    <button class="option single">MANAGER <span class="tag">SAFE</span></button>
+    <button class="option single">HEAD <span class="tag">RISK</span></button>
+   </div>
+  </div>
+
+  <div class="category">
+   <div class="cat-title">03 &nbsp; ESP</div>
+   <div class="options">
+    <button class="option multi" id="characterBtn">CHARACTER</button>
+    <button class="option multi">ESP BOX</button>
+    <button class="option multi">ESP LINE</button>
+    <button class="option multi">ESP HEAL</button>
+    <button class="option multi">ESP DISTANCE</button>
+   </div>
+   <div id="characterPanel" class="character-panel hidden">
+    <div class="character-row"><span>CHARACTER</span><span class="character-name" id="characterName">1. CLU</span></div>
+    <input type="range" id="characterRange" min="1" max="6" value="1" step="1">
+    <div class="range-numbers"><span>CLU</span><span>HOMER</span><span>IRIS</span><span>MOCO</span><span>OTHO</span><span>SHIROU</span></div>
+   </div>
+  </div>
+ </div>
+
+ <div class="inject-area">
+  <button class="inject" id="injectBtn" onclick="inject()">INJECT</button>
+  <div class="inject-progress" id="injectArea">
+   <div class="inject-info"><span id="injectText">INJECTING...</span><span id="injectPercent">0%</span></div>
+   <div class="inject-track"><div class="inject-fill" id="injectFill"></div></div>
+   <div class="success" id="successText"></div>
+  </div>
+ </div>
+</div>
+
+<script>
+const ACCESS_KEY="PHTM-RHA-862-DED";
+let verified=false,verifying=false,injecting=false;
+
+async function pasteKey(){
+ try{document.getElementById("key").value=(await navigator.clipboard.readText()).trim()}catch(e){}
+}
+
+document.getElementById("key").addEventListener("keydown",e=>{
+ if(e.key==="Enter")verifyKey();
+});
+
+function verifyKey(){
+ if(verifying||verified)return;
+ const key=document.getElementById("key").value.trim().toUpperCase();
+ const msg=document.getElementById("message");
+
+ if(key!==ACCESS_KEY){
+  msg.style.color="#ff4545";
+  msg.textContent="INVALID KEY";
+  return;
+ }
+
+ verifying=true;
+ document.getElementById("key").disabled=true;
+ document.getElementById("verifyBtn").classList.add("hidden");
+ document.getElementById("verifyArea").style.display="block";
+ const start=performance.now();
+
+ function step(now){
+  const p=Math.min((now-start)/3000,1);
+  document.getElementById("verifyFill").style.width=p*100+"%";
+  document.getElementById("verifyPercent").textContent=Math.floor(p*100)+"%";
+  if(p<1)requestAnimationFrame(step);
+  else{
+   verifying=false;verified=true;
+   document.getElementById("verifyText").textContent="VERIFIED";
+   msg.textContent="✓ SUCCESS";msg.style.color="#9cdda9";
+   document.getElementById("timeArea").classList.remove("hidden");
+  }
+ }
+ requestAnimationFrame(step);
+}
+
+function openMenu(){
+ if(!verified)return;
+ document.getElementById("login").classList.add("hidden");
+ document.getElementById("menu").classList.remove("hidden");
+}
+
+document.querySelectorAll(".multi").forEach(btn=>{
+ btn.addEventListener("click",()=>{
+  btn.classList.toggle("active");
+  if(btn.id==="characterBtn")
+   document.getElementById("characterPanel").classList.toggle("hidden",!btn.classList.contains("active"));
+ });
+});
+
+document.querySelectorAll(".single").forEach(btn=>{
+ btn.addEventListener("click",()=>{
+  document.querySelectorAll(".single").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+ });
+});
+
+const names=["CLU","HOMER","IRIS","MOCO","OTHO","SHIROU"];
+document.getElementById("characterRange").addEventListener("input",e=>{
+ const n=Number(e.target.value);
+ document.getElementById("characterName").textContent=n+". "+names[n-1];
+});
+
+function inject(){
+ if(injecting)return;
+ injecting=true;
+
+ const btn=document.getElementById("injectBtn");
+ const area=document.getElementById("injectArea");
+ const fill=document.getElementById("injectFill");
+ const percent=document.getElementById("injectPercent");
+ const text=document.getElementById("injectText");
+ const success=document.getElementById("successText");
+
+ fill.style.width="0%";
+ percent.textContent="0%";
+ text.textContent="INJECTING...";
+ success.textContent="";
+ area.style.display="block";
+ btn.disabled=true;
+ btn.textContent="INJECTING...";
+
+ const start=performance.now();
+ function step(now){
+  const p=Math.min((now-start)/10000,1);
+  fill.style.width=p*100+"%";
+  percent.textContent=Math.floor(p*100)+"%";
+  if(p<1)requestAnimationFrame(step);
+  else{
+   injecting=false;
+   text.textContent="COMPLETED";
+   success.textContent="✓ INJECT SUCCESSFUL";
+   btn.disabled=false;
+   btn.textContent="INJECT";
+  }
+ }
+ requestAnimationFrame(step);
+}
+</script>
+</body>
+</html>
