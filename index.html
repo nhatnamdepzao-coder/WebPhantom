@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -48,6 +47,11 @@ button{cursor:pointer;font-family:inherit}
 .character-name{color:white;font-weight:bold}
 input[type=range]{width:100%;accent-color:white}
 .range-numbers{display:flex;justify-content:space-between;font-size:8px;color:#777;margin-top:5px}
+.localconfig{background:#111;border:1px solid #303030;border-radius:4px;padding:8px}
+.localconfig-head{font-size:11px;font-weight:bold;letter-spacing:3px;margin-bottom:7px}
+.localconfig-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.localconfig-id{font-size:11px;letter-spacing:1px;color:#aaa;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.localconfig-btn{flex-shrink:0;background:#eee;color:#111;border:0;padding:10px 12px;font-size:9px;font-weight:1000;letter-spacing:1px}
 .inject-area{flex-shrink:0}
 .inject{width:100%;height:48px;background:#eee;color:#080808;border:0;font-size:16px;font-weight:1000;letter-spacing:5px}
 .inject:disabled{opacity:.6}
@@ -59,13 +63,14 @@ input[type=range]{width:100%;accent-color:white}
 
 @media(max-height:650px){
  #menu{padding:6px;gap:5px}
- .category{padding:5px}
+ .category,.localconfig{padding:5px}
  .cat-title{padding-bottom:4px;margin-bottom:4px}
  .option{min-height:27px;font-size:8px}
  .inject{height:41px}
  .sun{font-size:90px}
  .brand{font-size:36px}
  .desc{margin-bottom:20px}
+ .localconfig-btn{padding:8px 10px}
 }
 </style>
 </head>
@@ -130,6 +135,14 @@ input[type=range]{width:100%;accent-color:white}
     <div class="character-row"><span>CHARACTER</span><span class="character-name" id="characterName">1. CLU</span></div>
     <input type="range" id="characterRange" min="1" max="6" value="1" step="1">
     <div class="range-numbers"><span>CLU</span><span>HOMER</span><span>IRIS</span><span>MOCO</span><span>OTHO</span><span>SHIROU</span></div>
+   </div>
+  </div>
+
+  <div class="localconfig">
+   <div class="localconfig-head">04 &nbsp; LOCALCONFIG</div>
+   <div class="localconfig-row">
+    <span class="localconfig-id" id="localconfigId">ID: NOT GENERATED</span>
+    <button class="localconfig-btn" onclick="downloadLocalConfig()">DOWNLOAD</button>
    </div>
   </div>
  </div>
@@ -214,6 +227,30 @@ document.getElementById("characterRange").addEventListener("input",e=>{
  const n=Number(e.target.value);
  document.getElementById("characterName").textContent=n+". "+names[n-1];
 });
+
+function downloadLocalConfig(){
+ const digits="0123456789";
+ const random=new Uint8Array(10);
+ crypto.getRandomValues(random);
+ const identifier=Array.from(random,n=>digits[n%10]).join("");
+ document.getElementById("localconfigId").textContent="ID: "+identifier;
+
+ const config={
+  name:"PHANTOM",
+  website:"https://nhatnamdepzao-coder.github.io/WebPhantom/",
+  identifier:identifier,
+  version:"1.0.0"
+ };
+ const blob=new Blob([JSON.stringify(config,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);
+ const link=document.createElement("a");
+ link.href=url;
+ link.download="localconfig.json";
+ document.body.appendChild(link);
+ link.click();
+ link.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
 
 function inject(){
  if(injecting)return;
